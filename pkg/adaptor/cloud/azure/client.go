@@ -10,7 +10,7 @@ import (
 
 func NewAzureClient(config Config) (azcore.TokenCredential, error) {
 
-	cred, err := azidentity.NewClientSecretCredential(config.TenantId, config.ClientId, config.ClientSecret, nil)
+	cred, err := azidentity.NewDefaultAzureCredential(nil)
 	if err != nil {
 		return nil, err
 	}

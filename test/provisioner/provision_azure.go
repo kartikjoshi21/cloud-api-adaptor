@@ -242,9 +242,6 @@ func (p *AzureCloudProvisioner) CreateCluster(ctx context.Context, cfg *envconf.
 				Secret:   to.Ptr(AzureProps.ClientSecret),
 			},
 		},
-		Identity: &armcontainerservice.ManagedClusterIdentity{
-			Type: to.Ptr(armcontainerservice.ResourceIdentityTypeSystemAssigned),
-		},
 	}
 
 	if AzureProps.IsAzCliAuth {
@@ -287,6 +284,18 @@ func (p *AzureCloudProvisioner) CreateCluster(ctx context.Context, cfg *envconf.
 	if err != nil {
 		log.Errorf("Failed waiting  cluster %s to be ready: %v.\n", AzureProps.ClusterName, err)
 		return fmt.Errorf("waiting for cluster to be ready %w", err)
+	}
+
+
+	if AzureProps.IsAzCliAuth {
+	  aksCluster, err := AzureProps.ManagedAksClient.Get(context.Background(), AzureProps.ResourceGroupName, AzureProps.ClusterName, nil)
+	  if err != nil {
+	    log.Errorf("Failed to get cluster %s %v:.\n", AzureProps.ClusterName, err)
+	    return fmt.Errorf("failed to get cluster: %w", err)
+	  }
+	  clientSecret := aksCluster.ManagedCluster.Properties.ServicePrincipalProfile
+	  fmt.Println("Client ID:%s", *clientSecret.ClientID)
+	  AzureProps.ClientID = *clientSecret.ClientID
 	}
 
 	home, err := os.UserHomeDir()
