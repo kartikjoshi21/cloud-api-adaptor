@@ -23,6 +23,7 @@ import (
 )
 
 const BUSYBOX_IMAGE = "quay.io/prometheus/busybox:latest"
+const BUSYBOX_CURL_IMAGE = "quay.io/curl/curl:latest"
 const WAIT_DEPLOYMENT_AVAILABLE_TIMEOUT = time.Second * 180
 const DEFAULT_AUTH_SECRET = "auth-json-secret-default"
 
@@ -137,6 +138,10 @@ func NewPod(namespace string, podName string, containerName string, imageName st
 
 func NewBusyboxPod(namespace string) *corev1.Pod {
 	return NewBusyboxPodWithName(namespace, "busybox")
+}
+
+func NewBusyboxCurlPod(namespace string) *corev1.Pod {
+	return NewPod(namespace, "busybox-curl", "busybox-curl", BUSYBOX_CURL_IMAGE, WithCommand([]string{"/bin/sh", "-c", "sleep 3600"}))
 }
 
 func NewBusyboxPodWithName(namespace, podName string) *corev1.Pod {
