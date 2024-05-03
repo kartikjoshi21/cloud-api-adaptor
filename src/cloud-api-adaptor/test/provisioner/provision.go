@@ -295,6 +295,13 @@ func getNodeIPForSvc(deploymentName string, service corev1.Service, cfg *envconf
 	if err != nil {
 		return "", err
 	}
+
+	err = AllPodsRunning(cfg, service.Namespace)
+	if err != nil {
+		err = fmt.Errorf("All pods are not running: %w\n", err)
+		log.Errorf("%v", err)
+	}
+
 	podList := &corev1.PodList{}
 	if err := client.Resources(service.Namespace).List(context.TODO(), podList); err != nil {
 		return "", err
@@ -587,7 +594,7 @@ func (p *CloudAPIAdaptor) DoKustomize(ctx context.Context, cfg *envconf.Config) 
 }
 
 // TODO: convert this into a klient/wait/conditions
-func AllPodsRunning(ctx context.Context, cfg *envconf.Config, namespace string) error {
+func AllPodsRunning(cfg *envconf.Config, namespace string) error {
 	client, err := cfg.NewClient()
 	if err != nil {
 		return err
